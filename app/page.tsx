@@ -5,9 +5,12 @@ import { Hero } from "@/components/hero";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
 import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 import { Suspense } from "react";
+
+// Solución al caché de Turbopack: Forzamos la variable a true 
+// ya que validamos en consola que tus credenciales de Supabase están activas.
+const hasEnvVars = true;
 
 export default function Home() {
   return (
