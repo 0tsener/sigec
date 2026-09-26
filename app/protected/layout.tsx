@@ -1,55 +1,115 @@
-import { DeployButton } from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import { AuthButton } from "@/components/auth-button";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { hasEnvVars } from "@/lib/utils";
-import Link from "next/link";
-import { Suspense } from "react";
+import React from "react";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import {
+  Sidebar,
+  SidebarProvider,
+  type UserProfile,
+} from "@/components/sidebar";
+import { Topbar } from "@/components/topbar";
 
-export default function ProtectedLayout({
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <main className="min-h-screen flex flex-col items-center">
-      <div className="flex-1 w-full flex flex-col gap-20 items-center">
-        <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-          <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-            <div className="flex gap-5 items-center font-semibold">
-              <Link href={"/"}>Next.js Supabase Starter</Link>
-              <div className="flex items-center gap-2">
-                <DeployButton />
-              </div>
-            </div>
-            {!hasEnvVars ? (
-              <EnvVarWarning />
-            ) : (
-              <Suspense>
-                <AuthButton />
-              </Suspense>
-            )}
-          </div>
-        </nav>
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
-          {children}
-        </div>
+  const supabase = await createClient();
 
-        <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
-          <p>
-            Powered by{" "}
-            <a
-              href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-              target="_blank"
-              className="font-bold hover:underline"
-              rel="noreferrer"
-            >
-              Supabase
-            </a>
-          </p>
-          <ThemeSwitcher />
-        </footer>
+  // 1. Verificar la sesión del usuario con Supabase
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  // Si no hay usuario autenticado, redirigir a /sign-in
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  interface ProfileRecord {
+    id?: string;
+    full_name?: string;
+    name?: string;
+    role?: string;
+    avatar_url?: string;
+    organization_id?: string;
+    [key: string]: unknown;
+  }
+
+  let profile: ProfileRecord | null = null;
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!error) {
+      profile = data;
+    }
+  } catch (err) {
+    console.error("Error al consultar la tabla profiles:", err);
+  }
+
+  // 3. Traer información de la organización (tenant) si está vinculada
+  let organizationName = "SIGEC Demo Org";
+  const orgId = profile?.organization_id;
+
+  if (orgId) {
+    try {
+      const { data: orgData } = await supabase
+        .from("organizations")
+        .select("name")
+        .eq("id", orgId)
+        .maybeSingle();
+
+      if (orgData?.name) {
+        organizationName = orgData.name;
+      }
+    } catch {
+      // Usar nombre predeterminado en caso de fallo
+    }
+  }
+
+  // Estructura normalizada del perfil de usuario
+  const userProfile: UserProfile = {
+    id: user.id,
+    email: user.email,
+    fullName:
+      profile?.full_name ??
+      profile?.name ??
+      user.user_metadata?.full_name ??
+      user.user_metadata?.name ??
+      (user.email ? user.email.split("@")[0] : "Usuario SIGEC"),
+    role:
+      profile?.role ??
+      user.user_metadata?.role ??
+      "Administrador",
+    avatarUrl:
+      profile?.avatar_url ??
+      user.user_metadata?.avatar_url ??
+      null,
+    organizationName,
+    organizationId: orgId ?? null,
+  };
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen bg-background text-foreground flex antialiased">
+        {/* Barra lateral (Sidebar) */}
+        <Sidebar user={userProfile} />
+
+        {/* Área de contenido principal */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Barra superior (Topbar) */}
+          <Topbar user={userProfile} />
+
+          {/* Contenido de la vista protegida */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto">
+            {children}
+          </main>
+        </div>
       </div>
-    </main>
+    </SidebarProvider>
   );
 }
