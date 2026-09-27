@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ChevronRight,
   LogOut,
+  Contact,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -94,6 +95,11 @@ const navigationSections: NavSection[] = [
   {
     title: "Operaciones",
     items: [
+      {
+        title: "Personas",
+        href: "/protected/personas",
+        icon: Contact,
+      },
       {
         title: "Clientes",
         href: "/protected/customers",

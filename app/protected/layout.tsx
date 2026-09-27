@@ -7,6 +7,7 @@ import {
   type UserProfile,
 } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
+import { Toaster } from "@/components/ui/sonner";
 
 export default async function ProtectedLayout({
   children,
@@ -110,6 +111,7 @@ export default async function ProtectedLayout({
           </main>
         </div>
       </div>
+      <Toaster richColors position="top-right" />
     </SidebarProvider>
   );
 }
