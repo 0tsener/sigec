@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Users,
   UserCheck,
-  Package,
   Building2,
   Settings,
   X,
@@ -108,7 +107,7 @@ const navigationSections: NavSection[] = [
       },
       {
         title: "Empleados",
-        href: "/protected/employees",
+        href: "/protected/empleados",
         icon: UserCheck,
       },
       {
