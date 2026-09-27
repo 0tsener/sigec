@@ -82,7 +82,7 @@ const navigationSections: NavSection[] = [
     items: [
       {
         title: "Dashboard",
-        href: "/protected",
+        href: "/protected/dashboard",
         icon: LayoutDashboard,
       },
       {
@@ -165,7 +165,7 @@ export function Sidebar({ user }: SidebarProps) {
         {/* Brand Header */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-border/70">
           <Link
-            href="/protected"
+            href="/protected/dashboard"
             onClick={closeSidebar}
             className="flex items-center gap-3 group"
           >
@@ -210,10 +210,7 @@ export function Sidebar({ user }: SidebarProps) {
               </p>
               <div className="space-y-1 pt-1">
                 {section.items.map((item) => {
-                  const isActive =
-                    item.href === "/protected"
-                      ? pathname === "/protected"
-                      : pathname.startsWith(item.href);
+                  const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                   const Icon = item.icon;
 
                   return (
