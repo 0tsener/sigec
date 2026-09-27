@@ -16,6 +16,7 @@ import {
   ChevronRight,
   LogOut,
   Contact,
+  Tag,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -102,7 +103,7 @@ const navigationSections: NavSection[] = [
       },
       {
         title: "Clientes",
-        href: "/protected/customers",
+        href: "/protected/clientes",
         icon: Users,
       },
       {
@@ -111,9 +112,9 @@ const navigationSections: NavSection[] = [
         icon: UserCheck,
       },
       {
-        title: "Servicios & Productos",
-        href: "/protected/catalog",
-        icon: Package,
+        title: "Servicios",
+        href: "/protected/servicios",
+        icon: Tag,
       },
     ],
   },
