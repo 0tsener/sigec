@@ -8,6 +8,7 @@ import {
   CalendarDays,
   Users,
   UserCheck,
+  Briefcase,
   Building2,
   Settings,
   X,
@@ -16,6 +17,8 @@ import {
   LogOut,
   Contact,
   Tag,
+  Shield,
+  User,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -87,7 +90,7 @@ const navigationSections: NavSection[] = [
       },
       {
         title: "Agenda & Citas",
-        href: "/protected/appointments",
+        href: "/protected/citas",
         icon: CalendarDays,
       },
     ],
@@ -120,6 +123,16 @@ const navigationSections: NavSection[] = [
   {
     title: "Administración",
     items: [
+      {
+        title: "Usuarios",
+        href: "/protected/usuarios",
+        icon: User,
+      },
+      {
+        title: "Roles y Permisos",
+        href: "/protected/roles",
+        icon: Shield,
+      },
       {
         title: "Organizaciones",
         href: "/protected/organizations",
